@@ -15,27 +15,21 @@ float4 MainPS(noperspective float4 UVAndScreenPos : TEXCOORD0) : SV_Target0
 	float2 uv = UVAndScreenPos.xy;
     float4 res = CalcSceneColorAndDepth(uv);
 
-	// =================================================================================
-	// ПАРАМЕТРЫ (Перенесены внутрь функции, чтобы Unreal не требовал их из C++)
-	// =================================================================================
 	float3 FogColor = float3(0.9, 0.9, 0.9);
 	float MaxFogFactor = 0.8;
-	float FogCurve = 1.5;
+	float FogCurve = 2;
 	float FogStart = 0.050; 
-	float UEMaxDistance = 20000.0f; 
+	float UEMaxDistance = 2000.0f; 
 
 	// -----------------------------------------------------------------------------
-	// ОРИГИНАЛЬНЫЙ КОД AdaptiveFog.fx С МИНИМАЛЬНЫМИ ИЗМЕНЕНИЯМИ
+	// AdaptiveFog.fx 
 	// -----------------------------------------------------------------------------
 
-	// 1. ПОЛУЧЕНИЕ ГЛУБИНЫ
 	// ReShade: float depth = ReShade::GetLinearizedDepth(texcoord).r;
 	float depth = res.w / UEMaxDistance;
 
-	// 2. РАСЧЕТ ПЛОТНОСТИ ТУМАНА (Оригинальная строка из AdaptiveFog.fx, без изменений)
 	float fogFactor = clamp(saturate(depth - FogStart) * FogCurve, 0.0, MaxFogFactor); 
 
-	// 3. СМЕШИВАНИЕ ЦВЕТОВ
 	// ReShade: fragment = lerp(tex2D(ReShade::BackBuffer, texcoord), lerp(tex2D(Otis_BloomSampler, texcoord), float4(FogColor, 1.0), fogFactor), fogFactor);
 	float4 fragment = lerp(float4(res.xyz, 1.0), float4(FogColor, 1.0), fogFactor);
 
